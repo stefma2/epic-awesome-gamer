@@ -15,7 +15,7 @@ import importlib_metadata
 from hcaptcha_challenger import install
 from hcaptcha_challenger.agents import Malenia
 from loguru import logger
-from playwright.async_api import BrowserContext, async_playwright
+from playwright.async_api import BrowserContext, async_playwright, expect
 
 from epic_games import (
     EpicPlayer,
@@ -146,10 +146,14 @@ class ISurrender:
                 args=["--hide-crash-restore-bubble"],
             )
             await Malenia.apply_stealth(context)
-            if not await self.prelude_with_context(context):
-                install(upgrade=True, clip=True)
-                await self.claim_epic_games(context)
-            await context.close()
+            try:
+                if not await self.prelude_with_context(context):
+                    install(upgrade=True, clip=True)
+                    await self.claim_epic_games(context)
+            except Exception as e:
+                logger.error("Error during claim_epic_games:", error=str(e))
+            finally:
+                await context.close()
 
 
 async def run():
