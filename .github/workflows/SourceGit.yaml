@@ -3,12 +3,13 @@ name: Claim EpicGames from SourceGit
 on:
   workflow_dispatch:
   schedule:
-#    - cron: '35 3,13 * * 5,6,0'
-    - cron: '35 3,7,11,13,19 * * *'
+    - cron: "35 3,7,11,13,19 * * *"
+
 jobs:
   setup:
     env:
-      EPIC_EMAIL: ${{ secrets.EPIC_EMAIL }}
+      EPIC_EMAIL: ${{ secrets.EPIC_EMAIL }} 
+      TOKEN: ${{ secrets.PUSHTOKEN }}
       EPIC_PASSWORD: ${{ secrets.EPIC_PASSWORD }}
       FAKE_HASH: "Automated deployment @ $(date '+%Y-%m-%d %H:%M:%S') Asia/Shanghai"
     runs-on: ubuntu-latest
@@ -26,6 +27,7 @@ jobs:
     - name: 安装依赖
       run: |
         pip install -r epic/requirements.txt
+        pip install requests
         playwright install firefox
         playwright install-deps firefox
     - name: 启动项目
@@ -46,3 +48,6 @@ jobs:
         git add .
         git commit -m "${{ env.FAKE_HASH }}" 
         git push -f
+    - name: PUSHPLUS
+      run: |
+          python PUSHPLUS.py 
